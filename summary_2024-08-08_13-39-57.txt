@@ -1,0 +1,25 @@
+Organized Logs Summary - 2024-08-08_13-39-57
+/home/aaa/terminal_history_logs/organized:
+2024-08-08
+
+/home/aaa/terminal_history_logs/organized/2024-08-08:
+history_2024-08-08_12-15-39.log
+history_2024-08-08_12-19-44.log
+history_2024-08-08_12-22-56.log
+history_2024-08-08_12-28-31.log
+history_2024-08-08_12-44-53.log
+history_2024-08-08_12-50-29.log
+history_2024-08-08_12-52-39.log
+history_2024-08-08_12-54-16.log
+history_2024-08-08_12-55-01.log
+history_2024-08-08_12-55-56.log
+history_2024-08-08_12-56-29.log
+history_2024-08-08_12-57-01.log
+history_2024-08-08_12-57-28.log
+history_2024-08-08_13-00-01.log
+history_2024-08-08_13-10-25.log
+history_2024-08-08_13-11-50.log
+history_2024-08-08_13-13-07.log
+history_2024-08-08_13-31-59.log
+history_2024-08-08_13-33-41.log
+history_2024-08-08_13-39-57.log
