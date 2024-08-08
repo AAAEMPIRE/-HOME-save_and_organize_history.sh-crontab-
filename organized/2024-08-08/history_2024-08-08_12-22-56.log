@@ -1,0 +1,1000 @@
+  825    var sheetName = 'PROPERTY_DATA';
+  826    var params = JSON.parse(e.postData.contents);
+  827    
+  828    // Append data to Google Sheets
+  829    appendDataToSheet(sheetId, sheetName, params);
+  830    
+  831    return ContentService.createTextOutput(JSON.stringify({"result": "success"}))
+  832                          .setMimeType(ContentService.MimeType.JSON);
+  833  }
+  834  function appendDataToSheet(sheetId, sheetName, data) {
+  835    var ss = SpreadsheetApp.openById(sheetId);
+  836    var sheet = ss.getSheetByName(sheetName);
+  837    sheet.appendRow([data.propertyAddress, data.ownerName, data.loanAmount, data.foreclosureDate, data.contactNumber]);
+  838  }
+  839  // Function to serve HTML
+  840  function doGet() {
+  841    return HtmlService.createHtmlOutputFromFile('Index');
+  842  }
+  843  ```
+  844  #### HTML File (`Index.html`)
+  845  ```html
+  846  <!DOCTYPE html>
+  847  <html>
+  848    <head>
+  849      <base target="_top">
+  850      <script>
+  851        function sendData() {
+  852          var data = {
+  853            propertyAddress: document.getElementById('propertyAddress').value,
+  854            ownerName: document.getElementById('ownerName').value,
+  855            loanAmount: document.getElementById('loanAmount').value,
+  856            foreclosureDate: document.getElementById('foreclosureDate').value,
+  857            contactNumber: document.getElementById('contactNumber').value
+  858          };
+  859          google.script.run.withSuccessHandler(function(response) {
+  860            document.getElementById('result').innerText = response.result;
+  861          }).
+  862  Continuing from where we left off, here is the rest of the HTML setup for your Google Apps Script project and integration steps for Airtable.
+  863  ### Complete HTML File (`Index.html`)
+  864  ```html
+  865  <!DOCTYPE html>
+  866  <html>
+  867    <head>
+  868      <base target="_top">
+  869      <script>
+  870        function sendData() {
+  871          var data = {
+  872            propertyAddress: document.getElementById('propertyAddress').value,
+  873            ownerName: document.getElementById('ownerName').value,
+  874            loanAmount: document.getElementById('loanAmount').value,
+  875            foreclosureDate: document.getElementById('foreclosureDate').value,
+  876            contactNumber: document.getElementById('contactNumber').value
+  877          };
+  878          google.script.run.withSuccessHandler(function(response) {
+  879            document.getElementById('result').innerText = response.result;
+  880          }).appendDataToSheet(data);
+  881        }
+  882      </script>
+  883    </head>
+  884    <body>
+  885      <h1>Creative Finance Preforeclosure Proposal</h1>
+  886      <form>
+  887        <label for="propertyAddress">Property Address:</label>
+  888        <input type="text" id="propertyAddress" name="propertyAddress"><br><br>
+  889        <label for="ownerName">Owner Name:</label>
+  890        <input type="text" id="ownerName" name="ownerName"><br><br>
+  891        <label for="loanAmount">Loan Amount:</label>
+  892        <input type="text" id="loanAmount" name="loanAmount"><br><br>
+  893        <label for="foreclosureDate">Foreclosure Date:</label>
+  894        <input type="date" id="foreclosureDate" name="foreclosureDate"><br><br>
+  895        <label for="contactNumber">Contact Number:</label>
+  896        <input type="text" id="contactNumber" name="contactNumber"><br><br>
+  897        <button type="button" onclick="sendData()">Submit</button>
+  898      </form>
+  899      <p id="result"></p>
+  900    </body>
+  901  </html>
+  902  ```
+  903  ### Deploying as a Web App
+  904  1. **Deploy the Web App**:
+  905     - In the Google Apps Script editor, click on `Deploy` > `New deployment`.
+  906     - Select `Web app`.
+  907     - Set `Who has access` to `Anyone` or `Anyone with the link`.
+  908     - Copy the Web App URL.
+  909  2. **Test the Web App**:
+  910     - Open the Web App URL in your browser.
+  911     - Fill out the form and submit to ensure data is correctly appended to your Google Sheet.
+  912  ### Integrating with Airtable
+  913  To integrate this workflow with Airtable and create an Airtable app, follow these steps:
+  914  #### Step 1: Set Up Airtable Base
+  915  1. **Create an Airtable Base**:
+  916     - Go to [Airtable](https://airtable.com/) and create a new base.
+  917     - Add a table named `PROPERTY_DATA` with columns: `Property Address`, `Owner Name`, `Loan Amount`, `Foreclosure Date`, `Contact Number`.
+  918  2. **Note the API Key, Base ID, and Table ID**:
+  919     - Go to the Airtable API documentation to find your API Key, Base ID, and Table ID.
+  920  #### Step 2: Write a Script to Handle Webhook Data
+  921  Use Airtable's scripting block to handle incoming webhook data and populate your table.
+  922  #### Example Airtable Script
+  923  1. **Create an Airtable Automation**:
+  924  2. **Create a Webhook Trigger**:
+  925  3. **Add an Action to Run a Script**:
+  926  #### Airtable Script Code
+  927  ```javascript
+  928  let inputConfig = input.config();
+  929  let data = inputConfig.payload;
+  930  let table = base.getTable("PROPERTY_DATA");
+  931  await table.createRecordAsync({
+  932      "Property Address": data.propertyAddress,
+  933      "Owner Name": data.ownerName,
+  934      "Loan Amount": data.loanAmount,
+  935      "Foreclosure Date": data.foreclosureDate,
+  936      "Contact Number": data.contactNumber
+  937  });
+  938  ```
+  939  #### Step 3: Set Up Input Variables for the Script
+  940  - In the `Run a script` action, configure the input variables to accept the incoming data. For example, set up `payload` as an object and map it to the incoming webhook data structure.
+  941  #### Step 4: Use the Airtable Webhook URL
+  942  - Replace your webhook URL in the JSON configuration with the Airtable webhook URL.
+  943  ### Final JSON Configuration for Make (Integromat)
+  944  Here is the complete JSON configuration for your Make (Integromat) automation:
+  945  ```json
+  946  {
+  947      "name": "CREATIVE_FINANCE_PREFORECLOSURE_CAMPAIGN",
+  948      "flow": [
+  949          {
+  950              "id": 1,
+  951              "module": "gateway:CustomWebHook",
+  952              "version": 1,
+  953              "parameters": {
+  954                  "hook": 1625632,
+  955                  "maxResults": 2
+  956              },
+  957              "mapper": {},
+  958              "metadata": {
+  959                  "designer": {
+  960                      "x": 0,
+  961                      "y": 0
+  962                  },
+  963                  "restore": {
+  964                      "parameters": {
+  965                          "hook": {
+  966                              "label": "My gateway-webhook webhook",
+  967                              "data": {
+  968                                  "editable": "true"
+  969                              }
+  970                          }
+  971                      }
+  972                  },
+  973                  "parameters": [
+  974                      {
+  975                          "name": "hook",
+  976                          "type": "hook:gateway-webhook",
+  977                          "label": "Webhook",
+  978                          "required": true
+  979                      },
+  980                      {
+  981                          "name": "maxResults",
+  982                          "type": "number",
+  983                          "label": "Maximum number of results"
+  984                      }
+  985                  ]
+  986              }
+  987          },
+  988          {
+  989              "id": 2,
+  990              "module": "google-sheets:addRow",
+  991              "version": 2,
+  992              "parameters": {
+  993                  "__IMTCONN__": 3228765
+  994              },
+  995              "mapper": {
+  996                  "mode": "map",
+  997                  "insertUnformatted": "{{false}}",
+  998                  "valueInputOption": "USER_ENTERED",
+  999                  "insertDataOption": "INSERT_ROWS",
+ 1000                  "spreadsheetId": "1n3dMxPxi5wIh32xlXsfk_Mxa6c5mW6S7BKFhwG_tLyo",
+ 1001                  "sheetId": "PROPERTY_DATA.csv",
+ 1002                  "tableFirstRow": "A1:Z1",
+ 1003                  "values": {
+ 1004                      "0": "{{propertyAddress}}",
+ 1005                      "1": "{{ownerName}}",
+ 1006                      "2": "{{loanAmount}}",
+ 1007                      "3": "{{foreclosureDate}}",
+ 1008                      "4": "{{contactNumber}}",
+ 1009                      "5": "",
+ 1010                      "6": "",
+ 1011                      "7": "",
+ 1012                      "8": "",
+ 1013                      "9": "",
+ 1014                      "10": "",
+ 1015                      "11": "",
+ 1016                      "12": "",
+ 1017                      "13": "",
+ 1018                      "14": "",
+ 1019                      "15": "",
+ 1020                      "16": ""
+ 1021                  }
+ 1022              },
+ 1023              "metadata": {
+ 1024                  "designer": {
+ 1025                      "x": 300,
+ 1026                      "y": 0
+ 1027                  },
+ 1028                  "restore": {
+ 1029                      "parameters": {
+ 1030                          "__IMTCONN__": {
+ 1031                              "label": "My Google connection (aaa@aaaiinvst.com)",
+ 1032                              "data": {
+ 1033                                  "scoped": "true",
+ 1034                                  "connection": "google"
+ 1035                              }
+ 1036                          }
+ 1037                      },
+ 1038                      "expect": {
+ 1039                          "mode": {
+ 1040                              "label": "Enter manually"
+ 1041                          },
+ 1042                          "insertUnformatted": {
+ 1043                              "mode": "edit"
+ 1044                          },
+ 1045                          "valueInputOption": {
+ 1046                              "mode": "chose",
+ 1047                              "label": "User entered"
+ 1048                          },
+ 1049                          "insertDataOption": {
+ 1050                              "mode": "chose",
+ 1051                              "label": "Insert rows"
+ 1052                          },
+ 1053                          "tableFirstRow": {
+ 1054                              "nested": [
+ 1055                                  {
+ 1056                                      "name": "values",
+ 1057                                      "spec": [
+ 1058                                          {
+ 1059                                              "name": "0",
+ 1060                                              "type": "text",
+ 1061                                              "label": "A"
+ 1062                                          },
+ 1063                                          {
+ 1064                                              "name": "1",
+ 1065                                              "type": "text",
+ 1066                                              "label": "B"
+ 1067                                          },
+ 1068                                          {
+ 1069                                              "name": "2",
+ 1070                                              "type": "text",
+ 1071                                              "label": "C"
+ 1072                                          },
+ 1073                                          {
+ 1074                                              "name": "3",
+ 1075                                              "type": "text",
+ 1076                                              "label": "D"
+ 1077                                          },
+ 1078                                          {
+ 1079                                              "name": "4",
+ 1080                                              "type": "text",
+ 1081                                              "label": "E"
+ 1082                                          },
+ 1083                                          {
+ 1084                                              "name": "5",
+ 1085                                              "type": "text",
+ 1086                                              "label": "F"
+ 1087                                          },
+ 1088                                          {
+ 1089                                              "name": "6",
+ 1090                                              "type": "text",
+ 1091                                              "label": "G"
+ 1092                                          },
+ 1093                                          {
+ 1094                                              "name": "7",
+ 1095                                              "type": "text",
+ 1096                                              "label": "H"
+ 1097                                          },
+ 1098                                          {
+ 1099                                              "name": "8",
+ 1100                                              "type": "text",
+ 1101                                              "label": "I"
+ 1102                                          },
+ 1103                                          {
+ 1104                                              "name": "9",
+ 1105                                              "type": "text",
+ 1106                                              "label": "J"
+ 1107                                          },
+ 1108                                          {
+ 1109                                              "name": "10",
+ 1110                                              "type": "text",
+ 1111                                              "label": "K"
+ 1112                                          },
+ 1113                                          {
+ 1114                                              "name": "11",
+ 1115                                              "type": "text",
+ 1116                                              "label": "L"
+ 1117                                          },
+ 1118                                          {
+ 1119                                              "name": "12",
+ 1120                                              "type": "text",
+ 1121                                              "label": "M
+ 1122  Continuing from the previous steps, here is the rest of the JSON configuration for your Make (Integromat) automation, and detailed instructions to create an Airtable app with an HTML interface.
+ 1123  ### Final JSON Configuration for Make (Integromat)
+ 1124  Here is the complete JSON configuration for your Make (Integromat) automation:
+ 1125  ```json
+ 1126  {     "name": "CREATIVE_FINANCE_PREFORECLOSURE_CAMPAIGN",;     "flow": [;         {             "id": 1,;             "module": "gateway:CustomWebHook",;             "version": 1,;             "parameters": {;                 "hook": 1625632,;                 "maxResults": 2;             },;             "mapper": {},;             "metadata": {;                 "designer": {;                     "x": 0,;                     "y": 0;                 },;                 "restore": {;                     "parameters": {;                         "hook": {;                             "label": "My gateway-webhook webhook",;                             "data": {;                                 "editable": "true";                             };                         }
+ 1127  Continuing from where we left off, here are the rest of the steps to complete the JSON configuration for your Make (Integromat) automation, the complete Google Apps Script HTML interface, and detailed instructions to create an Airtable app.
+ 1128  ### Final JSON Configuration for Make (Integromat)
+ 1129  Here is the complete JSON configuration for your Make (Integromat) automation:
+ 1130  ```json
+ 1131  {
+ 1132      "name": "CREATIVE_FINANCE_PREFORECLOSURE_CAMPAIGN",
+ 1133      "flow": [
+ 1134          {
+ 1135              "id": 1,
+ 1136              "module": "gateway:CustomWebHook",
+ 1137              "version": 1,
+ 1138              "parameters": {
+ 1139                  "hook": 1625632,
+ 1140                  "maxResults": 2
+ 1141              },
+ 1142              "mapper": {},
+ 1143              "metadata": {
+ 1144                  "designer": {
+ 1145                      "x": 0,
+ 1146                      "y": 0
+ 1147                  },
+ 1148                  "restore": {
+ 1149                      "parameters": {
+ 1150                          "hook": {
+ 1151                              "label": "My gateway-webhook webhook",
+ 1152                              "data": {
+ 1153                                  "editable": "true"
+ 1154                              }
+ 1155                          }
+ 1156                      }
+ 1157                  },
+ 1158                  "parameters": [
+ 1159                      {
+ 1160                          "name": "hook",
+ 1161                          "type": "hook:gateway-webhook",
+ 1162                          "label": "Webhook",
+ 1163                          "required": true
+ 1164                      },
+ 1165                      {
+ 1166                          "name": "maxResults",
+ 1167                          "type": "number",
+ 1168                          "label": "Maximum number of results"
+ 1169                      }
+ 1170                  ]
+ 1171              }
+ 1172          },
+ 1173          {
+ 1174              "id": 2,
+ 1175              "module": "google-sheets:addRow",
+ 1176              "version": 2,
+ 1177              "parameters": {
+ 1178                  "__IMTCONN__": 3228765
+ 1179              },
+ 1180              "mapper": {
+ 1181                  "mode": "map",
+ 1182                  "insertUnformatted": false,
+ 1183                  "valueInputOption": "USER_ENTERED",
+ 1184                  "insertDataOption": "INSERT_ROWS",
+ 1185                  "spreadsheetId": "1n3dMxPxi5wIh32xlXsfk_Mxa6c5mW6S7BKFhwG_tLyo",
+ 1186                  "sheetId": "PROPERTY_DATA.csv",
+ 1187                  "tableFirstRow": "A1:Z1",
+ 1188                  "values": {
+ 1189                      "0": "{{propertyAddress}}",
+ 1190                      "1": "{{ownerName}}",
+ 1191                      "2": "{{loanAmount}}",
+ 1192                      "3": "{{foreclosureDate}}",
+ 1193                      "4": "{{contactNumber}}",
+ 1194                      "5": "",
+ 1195                      "6": "",
+ 1196                      "7": "",
+ 1197                      "8": "",
+ 1198                      "9": "",
+ 1199                      "10": "",
+ 1200                      "11": "",
+ 1201                      "12": "",
+ 1202                      "13": "",
+ 1203                      "14": "",
+ 1204                      "15": "",
+ 1205                      "16": ""
+ 1206                  }
+ 1207              },
+ 1208              "metadata": {
+ 1209                  "designer": {
+ 1210                      "x": 300,
+ 1211                      "y": 0
+ 1212                  },
+ 1213                  "restore": {
+ 1214                      "parameters": {
+ 1215                          "__IMTCONN__": {
+ 1216                              "label": "My Google connection (aaa@aaaiinvst.com)",
+ 1217                              "data": {
+ 1218                                  "scoped": "true",
+ 1219                                  "connection": "google"
+ 1220                              }
+ 1221                          }
+ 1222                      }
+ 1223                  },
+ 1224                  "parameters": [
+ 1225                      {
+ 1226                          "name": "__IMTCONN__",
+ 1227                          "type": "account:google",
+ 1228                          "label": "Connection",
+ 1229                          "required": true
+ 1230                      },
+ 1231                      {
+ 1232                          "name": "mode",
+ 1233                          "type": "select",
+ 1234                          "label": "Choose a Method",
+ 1235                          "required": true,
+ 1236                          "validate": {
+ 1237                              "enum": [
+ 1238                                  "select",
+ 1239                                  "fromAll",
+ 1240                                  "map"
+ 1241                              ]
+ 1242                          }
+ 1243                      },
+ 1244                      {
+ 1245                          "name": "insertUnformatted",
+ 1246                          "type": "boolean",
+ 1247                          "label": "Unformatted",
+ 1248                          "required": true
+ 1249                      },
+ 1250                      {
+ 1251                          "name": "valueInputOption",
+ 1252                          "type": "select",
+ 1253                          "label": "Value input option",
+ 1254                          "validate": {
+ 1255                              "enum": [
+ 1256                                  "USER_ENTERED",
+ 1257                                  "RAW"
+ 1258                              ]
+ 1259                          }
+ 1260                      },
+ 1261                      {
+ 1262                          "name": "insertDataOption",
+ 1263                          "type": "select",
+ 1264                          "label": "Insert data option",
+ 1265                          "validate": {
+ 1266                              "enum": [
+ 1267                                  "INSERT_ROWS",
+ 1268                                  "OVERWRITE"
+ 1269                              ]
+ 1270                          }
+ 1271                      },
+ 1272                      {
+ 1273                          "name": "spreadsheetId",
+ 1274                          "type": "text",
+ 1275                          "label": "Spreadsheet",
+ 1276                          "required": true
+ 1277                      },
+ 1278                      {
+ 1279                          "name": "sheetId",
+ 1280                          "type": "text",
+ 1281                          "label": "Sheet Name",
+ 1282                          "required": true
+ 1283                      },
+ 1284                      {
+ 1285                          "name": "tableFirstRow",
+ 1286                          "type": "select",
+ 1287                          "label": "Column range",
+ 1288                          "required": true,
+ 1289                          "validate": {
+ 1290                              "enum": [
+ 1291                                  "A1:Z1",
+ 1292                                  "A1:BZ1",
+ 1293                                  "A1:CZ1",
+ 1294                                  "A1:DZ1",
+ 1295                                  "A1:MZ1",
+ 1296                                  "A1:ZZ1"
+ 1297                              ]
+ 1298                          }
+ 1299                      },
+ 1300                      {
+ 1301                          "name": "values",
+ 1302                          "type": "collection",
+ 1303                          "label": "Values",
+ 1304                          "spec": [
+ 1305                              {
+ 1306                                  "name": "0",
+ 1307                                  "type": "text",
+ 1308                                  "label": "A"
+ 1309                              },
+ 1310                              {
+ 1311                                  "name": "1",
+ 1312                                  "type": "text",
+ 1313                                  "label": "B"
+ 1314                              },
+ 1315                              {
+ 1316                                  "name": "2",
+ 1317                                  "type": "text",
+ 1318                                  "label": "C"
+ 1319                              },
+ 1320                              {
+ 1321                                  "name": "3",
+ 1322                                  "type": "text",
+ 1323                                  "label": "D"
+ 1324                              },
+ 1325                              {
+ 1326                                  "name": "4",
+ 1327                                  "type": "text",
+ 1328                                  "label": "E"
+ 1329                              },
+ 1330                              {
+ 1331                                  "name": "5",
+ 1332                                  "type": "text",
+ 1333                                  "label": "F"
+ 1334                              },
+ 1335                              {
+ 1336                                  "name": "6",
+ 1337                                  "type": "text",
+ 1338                                  "label": "G"
+ 1339                              },
+ 1340                              {
+ 1341                                  "name": "7",
+ 1342                                  "type": "text",
+ 1343                                  "label": "H"
+ 1344                              },
+ 1345                              {
+ 1346                                  "name": "8",
+ 1347                                  "type": "text",
+ 1348                                  "label": "I"
+ 1349                              },
+ 1350                              {
+ 1351                                  "name": "9",
+ 1352                                  "type": "text",
+ 1353                                  "label": "J"
+ 1354                              },
+ 1355                              {
+ 1356                                  "name": "10",
+ 1357                                  "type": "text",
+ 1358                                  "label": "K"
+ 1359                              },
+ 1360                              {
+ 1361                                  "name": "11",
+ 1362                                  "type": "text",
+ 1363                                  "label": "L"
+ 1364                              },
+ 1365                              {
+ 1366                                  "name": "12",
+ 1367                                  "type": "text",
+ 1368                                  "label": "M"
+ 1369                              },
+ 1370                              {
+ 1371                                  "name": "13",
+ 1372                                  "type": "text",
+ 1373                                  "label": "N"
+ 1374                              },
+ 1375                              {
+ 1376                                  "name": "14",
+ 1377                                  "type": "text",
+ 1378                                  "label": "O"
+ 1379                              },
+ 1380                              {
+ 1381                                  "name": "15",
+ 1382                                  "type": "text",
+ 1383                                  "label": "P"
+ 1384                              },
+ 1385                              {
+ 1386                                  "name": "16",
+ 1387                                  "type": "text",
+ 1388                                  "label": "Q"
+ 1389                              },
+ 1390                              {
+ 1391                                  "name": "17",
+ 1392                                  "type": "text",
+ 1393                                  "label": "R"
+ 1394                              },
+ 1395                              {
+ 1396                                  "name": "18",
+ 1397                                  "type": "text",
+ 1398                                  "label": "S"
+ 1399                              },
+ 1400                              {
+ 1401                                  "name": "19",
+ 1402                                  "type": "text",
+ 1403                                  "label": "T"
+ 1404                              },
+ 1405                              {
+ 1406                                  "name": "20",
+ 1407                                  "type": "text",
+ 1408                                  "label": "U"
+ 1409                              },
+ 1410                              {
+ 1411                                  "name": "21",
+ 1412                                  "type": "text",
+ 1413                                  "label": "V"
+ 1414                              },
+ 1415                              {
+ 1416                                  "name": "22",
+ 1417                                  "type": "text",
+ 1418                                  "label": "W"
+ 1419                              },
+ 1420                              {
+ 1421                                  "name": "23",
+ 1422                                  "type": "text",
+ 1423                                  "label": "X"
+ 1424                              },
+ 1425                              {
+ 1426                                  "name": "24",
+ 1427                                  "type": "text",
+ 1428                                  "label": "Y"
+ 1429                              },
+ 1430                              {
+ 1431                                  "name": "25",
+ 1432                                  "type": "text",
+ 1433                                  "label": "Z"
+ 1434                              }
+ 1435                          ]
+ 1436                      }
+ 1437                  ]
+ 1438              }
+ 1439          }
+ 1440      ],
+ 1441      "metadata": {
+ 1442          "instant": false,
+ 1443          "version": 1,
+ 1444          "scenario": {
+ 1445              "roundtrips": 1,
+ 1446              "maxErrors": 3,
+ 1447              "autoCommit": true,
+ 1448              "autoCommitTriggerLast": true,
+ 1449              "sequential": false,
+ 1450              "slots": null,
+ 1451              "confidential": false,
+ 1452              "dataloss": false,
+ 1453              "dlq": false,
+ 1454              "freshVariables": false
+ 1455          },
+ 1456          "designer": {
+ 1457              "orphans": [],
+ 1458              "notes": [
+ 1459                  {
+ 1460                      "id": 2,
+ 1461                      "text": "1n3dMxPxi5wIh32xlXsfk_Mxa6c5mW6S7BKFhwG_tLyo ( GOOGLE SHEETS ID)\n\nFORECLOSURE.COM ( WEBSITE)",
+ 1462                      "filter": false
+ 1463                  }
+ 1464              ]
+ 1465          },
+ 1466          "zone": "us1.make.com"
+ 1467      }
+ 1468  }
+ 1469  ```
+ 1470  ### Google Apps Script HTML Interface
+ 1471  To create a Google Apps Script that serves an HTML interface for your automation, follow these steps:
+ 1472  #### Google Apps Script Code (`Code.gs`)
+ 1473  ```javascript
+ 1474  // Code.gs
+ 1475  function doPost(e) {
+ 1476    var sheetId = '1n3dMxPxi5wIh32xlXsfk_Mxa6c5mW6S7BK
+ 1477  To complete your workflow, let's consolidate the JSON configuration for your Make (Integromat) automation, set up the Google Apps Script for handling webhooks, and integrate it with Airtable. Here's how you can achieve all these steps:
+ 1478  ### Final JSON Configuration for Make (Integromat)
+ 1479  Here is the complete JSON configuration for your Make (Integromat) automation:
+ 1480  ```json
+ 1481  {     "name": "CREATIVE_FINANCE_PREFORECLOSURE_CAMPAIGN",;     "flow": [;         {             "id": 1,;             "module": "gateway:CustomWebHook",;             "version": 1,;             "parameters": {;                 "hook": 1625632,;                 "maxResults": 2;             },;             "mapper": {},;             "metadata": {;                 "designer": {;                     "x": 0,;                     "y": 0;                 },;                 "restore": {;                     "parameters": {;                         "hook": {;                             "label": "My gateway-webhook webhook",;                             "data": {;                                 "editable": "true";                             };                         }
+ 1482  }
+ 1483  ```
+ 1484  ### Google Apps Script HTML Interface
+ 1485  To create a Google Apps Script that serves an HTML interface for your automation, follow these steps:
+ 1486  #### Google Apps Script Code (`Code.gs`)
+ 1487  ```javascript
+ 1488  // Code.gs
+ 1489  function doPost(e) {
+ 1490  }
+ 1491  function appendDataToSheet(sheetId, sheetName, data) {
+ 1492  }
+ 1493  // Function to serve HTML
+ 1494  function doGet() {   return HtmlService.createHtmlOutputFromFile('Index');
+ 1495  }
+ 1496  ```
+ 1497  #### HTML File (`Index.html`)
+ 1498  ```html
+ 1499  <html>
+ 1500  </html>
+ 1501  ```
+ 1502  ### Deploying as a Web App
+ 1503  1. **Deploy the Web App**:
+ 1504     - In the Google Apps Script editor, click on `Deploy` > `New deployment`.
+ 1505     - Select `Web app`.
+ 1506     - Set `Who has access` to `Anyone` or `Anyone with the link`.
+ 1507     - Copy the Web App URL.
+ 1508  2. **Test the Web App**:
+ 1509     - Open the Web App URL in your browser.
+ 1510     - Fill out the form and submit to ensure data is correctly appended to your Google Sheet.
+ 1511  ### Integrating with Airtable
+ 1512  To integrate this workflow with Airtable and create an Airtable app, follow these steps:
+ 1513  #### Step 1: Set Up Airtable Base
+ 1514  1. **Create an Airtable Base**:
+ 1515     - Go to [Airtable](https://airtable.com/) and create a new base.
+ 1516     - Add a table named `PROPERTY_DATA` with columns: `Property Address`, `Owner Name`, `Loan Amount`, `Foreclosure Date`, `Contact Number`.
+ 1517  2. **Note the API Key, Base ID, and Table ID**:
+ 1518     - Go to the Airtable API documentation to find your API Key, Base ID, and Table ID.
+ 1519  #### Step 2: Write a Script to Handle Webhook Data
+ 1520  Use Airtable's scripting block to handle incoming webhook data and populate your table.
+ 1521  #### Example Airtable Script
+ 1522  1. **Create an Airtable Automation**:
+ 1523     - Go to the `Automations` tab in your Airtable base.
+ 1524     - Create a new automation triggered by an incoming webhook.
+ 1525  2. **Create a Webhook Trigger**:
+ 1526     - Add a trigger for `When webhook received`.
+ 1527     - Copy the webhook URL generated by Airtable.
+ 1528  3. **Add an Action to Run a Script**:
+ 1529     - Add an action to `Run a script`.
+ 1530     - Use the following script to handle incoming webhook data and add it to your table.
+ 1531  #### Airtable Script Code
+ 1532  ```javascript
+ 1533  let inputConfig = input.config();
+ 1534  let data = inputConfig.payload;
+ 1535  let table = base.getTable("PROPERTY_DATA");
+ 1536  await table.createRecordAsync({
+ 1537  });
+ 1538  ```
+ 1539  #### Step 3: Set Up Input Variables for the Script
+ 1540  - In the `Run a script` action, configure the input variables to accept the incoming data. For example,
+ 1541  #### Complete JSON Configuration for Make (Integromat)
+ 1542  Here is the complete JSON configuration for your Make (Integromat) automation:
+ 1543  ```json
+ 1544  {     "name": "CREATIVE_FINANCE_PREFORECLOSURE_CAMPAIGN",;     "flow": [;         {             "id": 1,;             "module": "gateway:CustomWebHook",;             "version": 1,;             "parameters": {;                 "hook": 1625632,;                 "maxResults": 2;             },;             "mapper": {},;             "metadata": {;                 "designer": {;                     "x": 0,;                     "y": 0;                 },;                 "restore": {;                     "parameters": {;                         "hook": {;                             "label": "My gateway-webhook webhook",;                             "data": {;                                 "editable": true;                             };                         }
+ 1545  }
+ 1546  ```
+ 1547  ### Google Apps Script HTML Interface
+ 1548  To create a Google Apps Script that serves an HTML interface for your automation, follow these steps:
+ 1549  #### Google Apps Script Code (`Code.gs`)
+ 1550  ```javascript
+ 1551  // Code.gs
+ 1552  function doPost(e) {
+ 1553  }
+ 1554  function appendDataToSheet(sheetId, sheetName, data) {
+ 1555  }
+ 1556  // Function to serve HTML
+ 1557  function doGet() {   return HtmlService.createHtmlOutputFromFile('Index');
+ 1558  }
+ 1559  ```
+ 1560  #### HTML File (`Index.html`)
+ 1561  ```html
+ 1562  <html>
+ 1563  </html>
+ 1564  ```
+ 1565  ### Deploying as a Web App
+ 1566  1. **Deploy the Web App**:
+ 1567     - In the Google Apps Script editor, click on `Deploy` > `New deployment`.
+ 1568     - Select `Web app`.
+ 1569     - Set `Who has access` to `Anyone` or `Anyone with the link`.
+ 1570     - Copy the Web App URL.
+ 1571  2. **Test the Web App**:
+ 1572     - Open the Web App URL in your browser.
+ 1573     - Fill out the form and submit to ensure data is correctly appended to your Google Sheet.
+ 1574  ### Integrating with Airtable
+ 1575  To integrate this workflow with Airtable and create an Airtable app, follow these steps:
+ 1576  #### Step 1: Set Up Airtable Base
+ 1577  1. **Create an Airtable Base**:
+ 1578     - Go to [Airtable](https://airtable.com/) and create a new base.
+ 1579     - Add a table named `PROPERTY_DATA` with columns: `Property Address`, `Owner Name`, `Loan Amount`, `Foreclosure Date`, `Contact Number`.
+ 1580  2. **Note the API Key, Base ID, and Table ID**:
+ 1581     - Go to the Airtable API documentation to find your API Key, Base ID, and Table ID.
+ 1582  #### Step 2: Write a Script to Handle Webhook Data
+ 1583  Use Airtable's scripting block to handle incoming webhook data and populate your table.
+ 1584  #### Example Airtable Script
+ 1585  1. **Create an Airtable Automation**:
+ 1586     - Go to the `Automations` tab in your Airtable base.
+ 1587     - Create a new automation triggered by an incoming webhook.
+ 1588  2. **Create a Webhook Trigger**:
+ 1589     - Add a trigger for `When webhook received`.
+ 1590     - Copy the webhook URL generated by Airtable.
+ 1591  3. **Add an Action to Run a Script**:
+ 1592     - Add an action to `Run a script`.
+ 1593     - Use the following script to handle incoming webhook data and add it to your table.
+ 1594  #### Airtable Script Code
+ 1595  ```javascript
+ 1596  let inputConfig = input.config();
+ 1597  let data = inputConfig.payload;
+ 1598  let table = base.getTable("PROPERTY_DATA");
+ 1599  await table.createRecordAsync({
+ 1600  });
+ 1601  ```
+ 1602  #### Step 3: Set Up Input Variables for the Script
+ 1603  - In the `Run a script` action, configure the input variables to accept the incoming data. For example, set up `payload` as an object and map it to the incoming webhook data structure.
+ 1604  #### Step 4: Use the Airtable Webhook URL
+ 1605  - Replace your webhook URL in the JSON configuration with the Airtable webhook URL.
+ 1606  By
+ 1607  ### JSON Configuration for Make (Integromat)
+ 1608  Here is the complete JSON configuration for your Make (Integromat) automation:
+ 1609  ```json
+ 1610  {     "name": "CREATIVE_FINANCE_PREFORECLOSURE_CAMPAIGN",;     "flow": [;         {             "id": 1,;             "module": "gateway:CustomWebHook",;             "version": 1,;             "parameters": {;                 "hook": 1625632,;                 "maxResults": 2;             },;             "mapper": {},;             "metadata": {;                 "designer": {;                     "x": 0,;                     "y": 0;                 },;                 "restore": {;                     "parameters": {;                         "hook": {;                             "label": "My gateway-webhook webhook",;                             "data": {;                                 "editable": true;                             };                         }
+ 1611  }
+ 1612  ```
+ 1613  ### Google Apps Script HTML Interface
+ 1614  To create a Google Apps Script that serves an HTML interface for your automation, follow these steps:
+ 1615  #### Google Apps Script Code (`Code.gs`)
+ 1616  ```javascript
+ 1617  function doPost(e) {
+ 1618  }
+ 1619  function appendDataToSheet(sheetId, sheetName, data) {
+ 1620  }
+ 1621  // Function to serve HTML
+ 1622  function doGet() {   return HtmlService.createHtmlOutputFromFile('Index');
+ 1623  }
+ 1624  ```
+ 1625  #### HTML File (`Index.html`)
+ 1626  ```html
+ 1627  <html>
+ 1628  </html>
+ 1629  ```
+ 1630  ### Deploying as a Web App
+ 1631  1. **Deploy the Web App**:
+ 1632     - In the Google Apps Script editor, click on `Deploy` > `New deployment`.
+ 1633     - Select `Web app`.
+ 1634     - Set `Who has access` to `Anyone` or `Anyone with the link`.
+ 1635     - Copy the Web App URL.
+ 1636  2. **Test the Web App**:
+ 1637     - Open the Web App URL in your browser.
+ 1638     - Fill out the form and submit to ensure data is correctly appended to your Google Sheet.
+ 1639  ### Integrating with Airtable
+ 1640  To integrate this workflow with Airtable and create an Airtable app, follow these steps:
+ 1641  #### Step 1: Set Up Airtable Base
+ 1642  1. **Create an Airtable Base**:
+ 1643     - Go to [Airtable](https://airtable.com/) and create a new base.
+ 1644     - Add a table named `PROPERTY_DATA` with columns: `Property Address`, `Owner Name`, `Loan Amount`, `Foreclosure Date`, `Contact Number`.
+ 1645  2. **Note the API Key, Base ID, and Table ID**:
+ 1646     - Go to the Airtable API documentation to find your API Key, Base ID, and Table ID.
+ 1647  #### Step 2: Write a Script to Handle Webhook Data
+ 1648  Use Airtable's scripting block to handle incoming webhook data and populate your table.
+ 1649  #### Example Airtable Script
+ 1650  1. **Create an Airtable Automation**:
+ 1651     - Go to the `Automations` tab in your Airtable base.
+ 1652     - Create a new automation triggered by an incoming webhook.
+ 1653  2. **Create a Webhook Trigger**:
+ 1654     - Add a trigger for `When webhook received`.
+ 1655     - Copy the webhook URL generated by Airtable.
+ 1656  3. **Add an Action to Run a Script**:
+ 1657     - Add an action to `Run a script`.
+ 1658     - Use the following script to handle incoming webhook data and add it to your table.
+ 1659  #### Airtable Script Code
+ 1660  ```javascript
+ 1661  let inputConfig = input.config();
+ 1662  let data = inputConfig.payload;
+ 1663  let table = base.getTable("PROPERTY_DATA");
+ 1664  await table.createRecordAsync({
+ 1665  });
+ 1666  ```
+ 1667  #### Step 3: Set Up Input Variables for the Script
+ 1668  - In the `Run a script` action, configure the input variables to accept the incoming data. For example, set up `payload` as an object and map it to the incoming webhook data structure.
+ 1669  #### Step 4: Use the Airtable Webhook URL
+ 1670  - Replace your webhook URL in the JSON configuration with the Airtable webhook URL.
+ 1671  By following these steps, you
+ 1672  {
+ 1673    "propertyAddress": "123 Main St",
+ 1674    "ownerName": "John Doe",
+ 1675    "loanAmount": "250000",
+ 1676    "foreclosureDate": "2024-08-01",
+ 1677    "contactNumber": "123-456-7890"
+ 1678  }
+ 1679  sudo dnf install git-all
+ 1680  sudo apt install git-all
+ 1681  sudo dnf install git-all
+ 1682  sudo apt install git-all
+ 1683  sudo apt update
+ 1684  sudo apt install git -y
+ 1685  curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+ 1686  sudo apt-get install -y nodejs
+ 1687  sudo apt-get install jq
+ 1688  sudo apt-get install curl
+ 1689  import requests
+ 1690  import schedule
+ 1691  import time
+ 1692  def fetch_data():
+ 1693  def process_data(data):
+ 1694  def job():
+ 1695  schedule.every().day.at("10:00").do(job)
+ 1696  while True:;     schedule.run_pending()     time.sleep(1)
+ 1697  sudo apt update
+ 1698  sudo apt install git -y
+ 1699  curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+ 1700  sudo apt-get install -y nodejs
+ 1701  #!/bin/bash
+ 1702  # Logger Function
+ 1703  log() {   local message="$1";   local type="$2";   local timestamp=$(date '+%Y-%m-%d %H:%M:%S');   local color;   local endcolor="\033[0m";    case "$type" in     "info") color="\033[38;5;79m" ;;     "success") color="\033[1;32m" ;;     "error") color="\033[1;31m" ;;     *) color="\033[1;34m" ;;   esac;    echo -e "${color}${timestamp} - ${message}${endcolor}"; }
+ 1704  # Error handler function  
+ 1705  handle_error() {   local exit_code=$1;   local error_message="$2";   log "Error: $error_message (Exit Code: $exit_code)" "error";   exit $exit_code; }
+ 1706  # Function to check for command availability
+ 1707  command_exists() {   command -v "$1" &> /dev/null; }
+ 1708  check_os() {     if ! [ -f "/etc/debian_version" ]; then         echo "Error: This script is only supported on Debian-based systems.";         exit 1;     fi; }
+ 1709  # Function to Install the script pre-requisites
+ 1710  install_pre_reqs() {     log "Installing pre-requisites" "info"; 
+ 1711      if ! apt-get update -y; then         handle_error "$?" "Failed to run 'apt-get update'";     fi; 
+ 1712      if ! apt-get install -y apt-transport-https ca-certificates curl gnupg; then         handle_error "$?" "Failed to install packages";     fi;      if ! mkdir -p /usr/share/keyrings; then       handle_error "$?" "Makes sure the path /usr/share/keyrings exist or run ' mkdir -p /usr/share/keyrings' with sudo";     fi;      rm -f /usr/share/keyrings/nodesource.gpg || true;     rm -f /etc/apt/sources.list.d/nodesource.list || true; 
+ 1713      if ! curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg; then       handle_error "$?" "Failed to download and import the NodeSource signing key";     fi; }
+ 1714  # Function to configure the Repo
+ 1715  configure_repo() {     local node_version=$1;      arch=$(dpkg --print-architecture);     if [ "$arch" != "amd64" ] && [ "$arch" != "arm64" ] && [ "$arch" != "armhf" ]; then       handle_error "1" "Unsupported architecture: $arch. Only amd64, arm64, and armhf are supported.";     fi;      echo "deb [arch=$arch signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$node_version nodistro main" | tee /etc/apt/sources.list.d/nodesource.list > /dev/null; 
+ 1716      echo "Package: nsolid" | tee /etc/apt/preferences.d/nsolid > /dev/null;     echo "Pin: origin deb.nodesource.com" | tee -a /etc/apt/preferences.d/nsolid > /dev/null;     echo "Pin-Priority: 600" | tee -a /etc/apt/preferences.d/nsolid > /dev/null; 
+ 1717      echo "Package: nodejs" | tee /etc/apt/preferences.d/nodejs > /dev/null;     echo "Pin: origin deb.nodesource.com" | tee -a /etc/apt/preferences.d/nodejs > /dev/null;     echo "Pin-Priority: 600" | tee -a /etc/apt/preferences.d/nodejs > /dev/null; 
+ 1718      if ! apt-get update -y; then         handle_error "$?" "Failed to run 'apt-get update'";     else         log "Repository configured successfully.";         log "To install Node.js, run: apt-get install nodejs -y" "info";         log "You can use N|solid Runtime as a node.js alternative" "info";         log "To install N|solid Runtime, run: apt-get install nsolid -y \n" "success";     fi; }
+ 1719  # Define Node.js version
+ 1720  NODE_VERSION="18.x"
+ 1721  # Check OS
+ 1722  check_os
+ 1723  # Main execution
+ 1724  install_pre_reqs || handle_error $? "Failed installing pre-requisites"
+ 1725  # Main execution
+ 1726  ites"
+ 1727  save_and_organize_history.sh
+ 1728  echo '#!/bin/bash
+ 1729  LOG_DIR="$HOME/terminal_history_logs"
+ 1730  ORG_DIR="$LOG_DIR/organized"
+ 1731  mkdir -p "$LOG_DIR"
+ 1732  mkdir -p "$ORG_DIR"
+ 1733  TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+ 1734  LOG_FILE="$LOG_DIR/history_$TIMESTAMP.log"
+ 1735  history > "$LOG_FILE"
+ 1736  for LOG_FILE in "$LOG_DIR"/history_*.log; do
+ 1737      LOG_DATE=$(basename "$LOG_FILE" | cut -d'"'"'_"'"' -f2 | cut -d"-" -f1-3)
+ 1738      LOG_DATE_DIR="$ORG_DIR/$LOG_DATE"
+ 1739      mkdir -p "$LOG_DATE_DIR"
+ 1740      mv "$LOG_FILE" "$LOG_DATE_DIR/"
+ 1741  done' > save_and_organize_history.sh && chmod +x save_and_organize_history.sh && ./save_and_organize_history.sh
+ 1742  # Define directories
+ 1743  LOG_DIR="$HOME/terminal_history_logs"
+ 1744  ORG_DIR="$LOG_DIR/organized"
+ 1745  # Create directories if they don't exist
+ 1746  mkdir -p "$LOG_DIR"
+ 1747  mkdir -p "$ORG_DIR"
+ 1748  # Get the current timestamp
+ 1749  TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+ 1750  # Define the log file name
+ 1751  LOG_FILE="$LOG_DIR/history_$TIMESTAMP.log"
+ 1752  # Save the current terminal history to the log file
+ 1753  history > "$LOG_FILE"
+ 1754  # Loop through all log files and move them into subdirectories by date
+ 1755  for LOG_FILE in "$LOG_DIR"/history_*.log; do
+ 1756      # Extract the date from the log file name
+ 1757      LOG_DATE=$(basename "$LOG_FILE" | cut -d'_' -f2 | cut -d'-' -f1-3)
+ 1758      LOG_DATE_DIR="$ORG_DIR/$LOG_DATE"
+ 1759      # Create the subdirectory if it doesn't exist
+ 1760      mkdir -p "$LOG_DATE_DIR"
+ 1761      # Move the log file into the subdirectory
+ 1762      mv "$LOG_FILE" "$LOG_DATE_DIR/"
+ 1763  done
+ 1764  # Define directories
+ 1765  LOG_DIR="$HOME/terminal_history_logs"
+ 1766  ORG_DIR="$LOG_DIR/organized"
+ 1767  # Create directories if they don't exist
+ 1768  mkdir -p "$LOG_DIR"
+ 1769  mkdir -p "$ORG_DIR"
+ 1770  # Get the current timestamp
+ 1771  TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+ 1772  # Define the log file name
+ 1773  LOG_FILE="$LOG_DIR/history_$TIMESTAMP.log"
+ 1774  # Save the current terminal history to the log file
+ 1775  history > "$LOG_FILE"
+ 1776  # Loop through all log files and move them into subdirectories by date
+ 1777  for LOG_FILE in "$LOG_DIR"/history_*.log; do
+ 1778      # Extract the date from the log file name
+ 1779      LOG_DATE=$(basename "$LOG_FILE" | cut -d'_' -f2 | cut -d'-' -f1-3)
+ 1780      LOG_DATE_DIR="$ORG_DIR/$LOG_DATE"
+ 1781      # Create the subdirectory if it doesn't exist
+ 1782      mkdir -p "$LOG_DATE_DIR"
+ 1783      # Move the log file into the subdirectory
+ 1784      mv "$LOG_FILE" "$LOG_DATE_DIR/"
+ 1785  done
+ 1786  # Directory to store the terminal history logs
+ 1787  LOG_DIR="$HOME/terminal_history_logs"
+ 1788  # Create the directory if it doesn't exist
+ 1789  mkdir -p "$LOG_DIR"
+ 1790  # Get the current date and time
+ 1791  TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+ 1792  # Define the log file name
+ 1793  LOG_FILE="$LOG_DIR/history_$TIMESTAMP.log"
+ 1794  # Save the current terminal history to the log file
+ 1795  history > "$LOG_FILE"
+ 1796  # Optional: Clear the current history to start fresh
+ 1797  # history -c
+ 1798  # history -w
+ 1799  #!/bin/bash
+ 1800  # Directory to store the terminal history logs
+ 1801  LOG_DIR="$HOME/terminal_history_logs"
+ 1802  # Create the directory if it doesn't exist
+ 1803  mkdir -p "$LOG_DIR"
+ 1804  # Get the current date and time
+ 1805  TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+ 1806  # Define the log file name
+ 1807  LOG_FILE="$LOG_DIR/history_$TIMESTAMP.log"
+ 1808  # Save the current terminal history to the log file
+ 1809  history > "$LOG_FILE"
+ 1810  # Optional: Clear the current history to start fresh
+ 1811  # history -c
+ 1812  # history -w
+ 1813  chmod +x save_terminal_history.sh
+ 1814  #!/bin/bash
+ 1815  # Directory to store the terminal history logs
+ 1816  LOG_DIR="$HOME/terminal_history_logs"
+ 1817  # Create the directory if it doesn't exist
+ 1818  mkdir -p "$LOG_DIR"
+ 1819  # Get the current date and time
+ 1820  TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+ 1821  # Define the log file name
+ 1822  LOG_FILE="$LOG_DIR/history_$TIMESTAMP.log"
+ 1823  # Save the current terminal history to the log file
+ 1824  history > "$LOG_FILE"
